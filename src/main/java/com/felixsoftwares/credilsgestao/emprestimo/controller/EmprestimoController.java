@@ -1,5 +1,6 @@
 package com.felixsoftwares.credilsgestao.emprestimo.controller;
 
+import com.felixsoftwares.credilsgestao.cliente.controller.dto.PagamentoRequest;
 import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoRequest;
 import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoResponse;
 import com.felixsoftwares.credilsgestao.emprestimo.mapper.EmprestimoMapper;
@@ -16,6 +17,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -52,5 +54,12 @@ public class EmprestimoController {
     @GetMapping("/clientes/{idCliente}/emprestimos")
     public List<EmprestimoResponse> findEmprestimoByCliente(@PathVariable Long idCliente) {
         return mapper.toEmprestimoResponseList(service.findEmprestimoByCliente(idCliente));
+    }
+
+    @PutMapping("/emprestimos/{id}/pagamentos")
+    public EmprestimoResponse registrarPagamento(@PathVariable Long id, @RequestBody PagamentoRequest request) {
+        return mapper.toEmprestimoResponse(
+                service.registrarPagamento(id, request)
+        );
     }
 }

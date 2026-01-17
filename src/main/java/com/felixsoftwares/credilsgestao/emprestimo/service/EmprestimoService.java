@@ -1,5 +1,6 @@
 package com.felixsoftwares.credilsgestao.emprestimo.service;
 
+import com.felixsoftwares.credilsgestao.cliente.controller.dto.PagamentoRequest;
 import com.felixsoftwares.credilsgestao.cliente.repository.ClienteRepository;
 import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoRequest;
 import com.felixsoftwares.credilsgestao.emprestimo.entity.Emprestimo;
@@ -78,4 +79,44 @@ public class EmprestimoService {
                         .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
         return repository.findByCliente(cliente);
     }
+
+    @Transactional
+    public Emprestimo registrarPagamento(Long id, PagamentoRequest request) {
+
+    Emprestimo emprestimo =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new EmprestimoNaoEncontradoException("Empréstimo não encontrado"));
+
+        StatusEmprestimo status = emprestimo.getStatusEmprestimo();
+
+        // 1. Atualiza total pago
+        BigDecimal novoTotalPago = status.getTotalPago()
+                .add(request.getValorPago());
+
+        status.setTotalPago(novoTotalPago);
+
+        // 2. Incrementa parcelas pagas
+        status.setNumParcelasPagas(
+                status.getNumParcelasPagas() + 1
+        );
+
+        // 3. Recalcula valores
+        emprestimo.calcularValores();
+        status.calcularProximoVencimento(
+                emprestimo.getDataInicioContrato(),
+                emprestimo.getPrazo()
+        );
+
+        // 4. Atualiza status
+        if (status.getValorEmAberto().compareTo(BigDecimal.ZERO) <= 0) {
+            status.setStatusEmprestimoEnum(StatusEmprestimoEnum.QUITADO);
+            status.setProximoVencimento(null);
+        } else {
+            status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
+        }
+
+        return repository.save(emprestimo);
+    }
+
 }
