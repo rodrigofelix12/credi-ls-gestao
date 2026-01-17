@@ -12,4 +12,14 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleClienteJaCadastrado(ClienteCadastradoException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
+
+    @ExceptionHandler(ClienteNaoEncontradoException.class)
+    public ResponseEntity<String> handleClienteNaoEncontrado(ClienteNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(EmprestimoNaoEncontradoException.class)
+    public ResponseEntity<String> handleEmprestimoNaoEncontrado(EmprestimoNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
 }

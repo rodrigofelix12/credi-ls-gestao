@@ -53,6 +53,11 @@ public class Emprestimo {
         this.statusEmprestimo.setValorEmAberto(
                 totalAPagar.subtract(statusEmprestimo.getTotalPago())
         );
+
+        this.statusEmprestimo.calcularProximoVencimento(
+                this.dataInicioContrato,
+                this.prazo
+        );
     }
 
 }

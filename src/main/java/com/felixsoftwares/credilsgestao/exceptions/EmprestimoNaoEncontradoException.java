@@ -1,0 +1,7 @@
+package com.felixsoftwares.credilsgestao.exceptions;
+
+public class EmprestimoNaoEncontradoException extends RuntimeException {
+    public EmprestimoNaoEncontradoException(String message) {
+        super(message);
+    }
+}

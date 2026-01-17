@@ -1,14 +1,12 @@
-package com.felixsoftwares.credilsgestao.emprestimo.entity;
+package com.felixsoftwares.credilsgestao.emprestimo.controller.dto;
 
-import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
 import lombok.Getter;
 import lombok.Setter;
 
-@Embeddable
 @Getter
 @Setter
-public class InfoEmprestimo {
+public class InfoEmprestimoResponse {
     private BigDecimal valorDividaAnterior;
     private BigDecimal valorGarantia;
     private String detalhesGarantia;
