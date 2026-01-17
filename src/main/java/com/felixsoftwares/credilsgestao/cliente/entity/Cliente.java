@@ -1,5 +1,6 @@
-package entity;
+package com.felixsoftwares.credilsgestao.cliente.entity;
 
+import com.felixsoftwares.credilsgestao.emprestimo.entity.Emprestimo;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

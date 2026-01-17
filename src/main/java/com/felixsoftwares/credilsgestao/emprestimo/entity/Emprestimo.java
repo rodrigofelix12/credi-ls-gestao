@@ -1,5 +1,6 @@
-package entity;
+package com.felixsoftwares.credilsgestao.emprestimo.entity;
 
+import com.felixsoftwares.credilsgestao.cliente.entity.Cliente;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

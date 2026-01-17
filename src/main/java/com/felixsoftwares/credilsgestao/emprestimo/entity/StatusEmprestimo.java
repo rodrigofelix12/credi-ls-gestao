@@ -1,7 +1,7 @@
-package entity;
+package com.felixsoftwares.credilsgestao.emprestimo.entity;
 
 
-import enums.StatusEmprestimoEnum;
+import com.felixsoftwares.credilsgestao.emprestimo.enums.StatusEmprestimoEnum;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;

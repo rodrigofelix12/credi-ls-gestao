@@ -1,4 +1,4 @@
-package entity;
+package com.felixsoftwares.credilsgestao.emprestimo.entity;
 
 import jakarta.persistence.Embeddable;
 import java.math.BigDecimal;
