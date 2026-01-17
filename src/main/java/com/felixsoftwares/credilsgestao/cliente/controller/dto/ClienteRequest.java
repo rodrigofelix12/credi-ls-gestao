@@ -5,7 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClienteResponse {
-    private Long id;
+public class ClienteRequest {
     private String name;
+    private String cpf;
+    private String rg;
+    private String telefone;
+    private String endereco;
 }
