@@ -6,6 +6,9 @@ import com.felixsoftwares.credilsgestao.cliente.entity.Cliente;
 import com.felixsoftwares.credilsgestao.cliente.mapper.ClienteMapper;
 import com.felixsoftwares.credilsgestao.cliente.service.ClienteService;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,15 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Validated
+@RequiredArgsConstructor
 public class ClienteController {
 
     private final ClienteService service;
     private final ClienteMapper mapper;
-
-    public ClienteController(ClienteService service, ClienteMapper mapper) {
-        this.service = service;
-        this.mapper = mapper;
-    }
 
     @GetMapping("/clientes")
     public List<ClienteResponse> findAll() {
@@ -37,8 +36,9 @@ public class ClienteController {
     }
 
     @PostMapping("/clientes")
-    public void createClient(@RequestBody ClienteRequest request) {
+    public ResponseEntity<Void> createClient(@RequestBody ClienteRequest request) {
         service.createClient(request);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/clientes/{id}")

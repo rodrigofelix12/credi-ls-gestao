@@ -5,16 +5,14 @@ import com.felixsoftwares.credilsgestao.cliente.entity.Cliente;
 import com.felixsoftwares.credilsgestao.cliente.repository.ClienteRepository;
 import com.felixsoftwares.credilsgestao.exceptions.ClienteCadastradoException;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ClienteService {
 
     private final ClienteRepository repository;
-
-    public ClienteService(ClienteRepository clienteRepository) {
-        this.repository = clienteRepository;
-    }
 
     public Cliente findById(Long id) {
         return repository.findById(id)
