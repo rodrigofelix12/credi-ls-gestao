@@ -30,6 +30,7 @@ public class EmprestimoService {
     return repository.findAll(pageable);
   }
 
+  @Transactional
   public Emprestimo findById(final Long id) {
     var emprestimo =
         repository
@@ -41,16 +42,33 @@ public class EmprestimoService {
   }
 
   private void atualizarStatusAtraso(Emprestimo emprestimo) {
+
     StatusEmprestimo status = emprestimo.getStatusEmprestimo();
 
     if (status.getStatusEmprestimoEnum() == StatusEmprestimoEnum.QUITADO) {
       return;
     }
 
-    if (status.getProximoVencimento() != null
-        && status.getProximoVencimento().isBefore(LocalDate.now())) {
+    LocalDate hoje = LocalDate.now();
 
-      status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATRASO);
+    if (status.getProximoVencimento() == null) {
+      return;
+    }
+
+    if (status.getProximoVencimento().isBefore(hoje)) {
+
+      if (status.getStatusEmprestimoEnum() != StatusEmprestimoEnum.ATRASO) {
+        status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATRASO);
+      }
+
+      status.calcularAtraso(emprestimo.getValorParcela(), hoje);
+
+    } else {
+      // caso alguém pague antecipado ou regularize
+      status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
+      status.setDiasEmAtraso(0);
+      status.setMulta(BigDecimal.ZERO);
+      status.setJurosAtraso(BigDecimal.ZERO);
     }
   }
 
