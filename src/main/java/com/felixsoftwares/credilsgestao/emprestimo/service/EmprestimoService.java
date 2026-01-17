@@ -11,6 +11,7 @@ import com.felixsoftwares.credilsgestao.exceptions.ClienteNaoEncontradoException
 import com.felixsoftwares.credilsgestao.exceptions.EmprestimoNaoEncontradoException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -68,5 +69,13 @@ public class EmprestimoService {
         emprestimo.calcularValores();
 
         return repository.save(emprestimo);
+    }
+
+    public List<Emprestimo> findEmprestimoByCliente(final Long idCliente) {
+        var cliente =
+                clienteRepository
+                        .findById(idCliente)
+                        .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
+        return repository.findByCliente(cliente);
     }
 }

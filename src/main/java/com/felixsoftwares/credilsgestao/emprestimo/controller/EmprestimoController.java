@@ -4,6 +4,7 @@ import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoRequ
 import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoResponse;
 import com.felixsoftwares.credilsgestao.emprestimo.mapper.EmprestimoMapper;
 import com.felixsoftwares.credilsgestao.emprestimo.service.EmprestimoService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -46,5 +47,10 @@ public class EmprestimoController {
     public ResponseEntity<Void> createEmprestimo(@PathVariable Long idCliente, @RequestBody EmprestimoRequest request) {
         service.create(idCliente, request);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @GetMapping("/clientes/{idCliente}/emprestimos")
+    public List<EmprestimoResponse> findEmprestimoByCliente(@PathVariable Long idCliente) {
+        return mapper.toEmprestimoResponseList(service.findEmprestimoByCliente(idCliente));
     }
 }
