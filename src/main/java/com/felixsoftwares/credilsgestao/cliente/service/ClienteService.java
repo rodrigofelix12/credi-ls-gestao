@@ -33,4 +33,17 @@ public class ClienteService {
         cliente.setEndereco(request.getEndereco());
         repository.save(cliente);
     }
+
+    public Cliente updateClient(Long id, ClienteRequest request) {
+        Cliente cliente = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        cliente.setName(request.getName());
+        cliente.setCpf(request.getCpf());
+        cliente.setRg(request.getRg());
+        cliente.setEndereco(request.getEndereco());
+        cliente.setTelefone(request.getTelefone());
+
+        return repository.save(cliente);
+    }
 }
