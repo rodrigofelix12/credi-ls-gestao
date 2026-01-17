@@ -6,6 +6,7 @@ import com.felixsoftwares.credilsgestao.cliente.entity.Cliente;
 import com.felixsoftwares.credilsgestao.cliente.mapper.ClienteMapper;
 import com.felixsoftwares.credilsgestao.cliente.service.ClienteService;
 import java.util.List;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Validated
 public class ClienteController {
 
     private final ClienteService service;
