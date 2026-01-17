@@ -10,6 +10,9 @@ import com.felixsoftwares.credilsgestao.emprestimo.enums.StatusEmprestimoEnum;
 import com.felixsoftwares.credilsgestao.emprestimo.repository.EmprestimoRepository;
 import com.felixsoftwares.credilsgestao.exceptions.ClienteNaoEncontradoException;
 import com.felixsoftwares.credilsgestao.exceptions.EmprestimoNaoEncontradoException;
+import com.felixsoftwares.credilsgestao.historico.entity.HistoricoFinanceiro;
+import com.felixsoftwares.credilsgestao.historico.enums.TipoHistorico;
+import com.felixsoftwares.credilsgestao.historico.repository.HistoricoFinanceiroRepository;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -25,6 +28,7 @@ public class EmprestimoService {
 
   private final EmprestimoRepository repository;
   private final ClienteRepository clienteRepository;
+  private final HistoricoFinanceiroRepository historicoFinanceiroRepository;
 
   public Page<Emprestimo> findAll(Pageable pageable) {
     return repository.findAll(pageable);
@@ -145,6 +149,21 @@ public class EmprestimoService {
       status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
     }
 
-    return repository.save(emprestimo);
+    // 5. 🔥 REGISTRA HISTÓRICO DO PAGAMENTO
+    historicoFinanceiroRepository.save(criarHistoricoPagamento(emprestimo, request));
+
+    return emprestimo;
+  }
+
+  private HistoricoFinanceiro criarHistoricoPagamento(
+      Emprestimo emprestimo, PagamentoRequest request) {
+
+    HistoricoFinanceiro h = new HistoricoFinanceiro();
+    h.setEmprestimo(emprestimo);
+    h.setTipo(TipoHistorico.PAGAMENTO);
+    h.setValor(request.getValorPago());
+    h.setDataEvento(request.getDataPagamento());
+    h.setObservacao("Pagamento de parcela");
+    return h;
   }
 }
