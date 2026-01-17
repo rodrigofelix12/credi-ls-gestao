@@ -12,6 +12,7 @@ import com.felixsoftwares.credilsgestao.exceptions.ClienteNaoEncontradoException
 import com.felixsoftwares.credilsgestao.exceptions.EmprestimoNaoEncontradoException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,102 +22,111 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class EmprestimoService {
-    
-    private final EmprestimoRepository repository;
-    private final ClienteRepository clienteRepository;
-    
-    public Page<Emprestimo> findAll(Pageable pageable) {
-        return repository.findAll(pageable);
+
+  private final EmprestimoRepository repository;
+  private final ClienteRepository clienteRepository;
+
+  public Page<Emprestimo> findAll(Pageable pageable) {
+    return repository.findAll(pageable);
+  }
+
+  public Emprestimo findById(final Long id) {
+    var emprestimo =
+        repository
+            .findById(id)
+            .orElseThrow(() -> new EmprestimoNaoEncontradoException("Emprestimo nao encontrado"));
+    atualizarStatusAtraso(emprestimo);
+
+    return emprestimo;
+  }
+
+  private void atualizarStatusAtraso(Emprestimo emprestimo) {
+    StatusEmprestimo status = emprestimo.getStatusEmprestimo();
+
+    if (status.getStatusEmprestimoEnum() == StatusEmprestimoEnum.QUITADO) {
+      return;
     }
 
-    public Emprestimo findById(final Long id) {
-        return repository.findById(id).orElseThrow( () -> new EmprestimoNaoEncontradoException("Emprestimo nao encontrado"));
+    if (status.getProximoVencimento() != null
+        && status.getProximoVencimento().isBefore(LocalDate.now())) {
+
+      status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATRASO);
     }
+  }
 
-    @Transactional
-    public Emprestimo create(Long idCliente, EmprestimoRequest request) {
-        var cliente =
-            clienteRepository
-                .findById(idCliente)
-                .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
-        Emprestimo emprestimo = new Emprestimo();
-        emprestimo.setValorEmprestimo(request.getValorEmprestimo());
-        emprestimo.setTaxaJurosMensal(request.getTaxaJurosMensal());
-        emprestimo.setPrazo(request.getPrazo());
-        emprestimo.setDataInicioContrato(request.getDataInicioContrato());
-        emprestimo.setCliente(cliente);
+  @Transactional
+  public Emprestimo create(Long idCliente, EmprestimoRequest request) {
+    var cliente =
+        clienteRepository
+            .findById(idCliente)
+            .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
+    Emprestimo emprestimo = new Emprestimo();
+    emprestimo.setValorEmprestimo(request.getValorEmprestimo());
+    emprestimo.setTaxaJurosMensal(request.getTaxaJurosMensal());
+    emprestimo.setPrazo(request.getPrazo());
+    emprestimo.setDataInicioContrato(request.getDataInicioContrato());
+    emprestimo.setCliente(cliente);
 
-        // Embedded: Status
-        StatusEmprestimo status = new StatusEmprestimo();
-        status.setTotalPago(
-                request.getTotalPago() != null ? request.getTotalPago() : BigDecimal.ZERO
-        );
-        status.setNumParcelasPagas(
-                request.getParcelasPagas() != null ? request.getParcelasPagas() : 0
-        );
-        status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
+    // Embedded: Status
+    StatusEmprestimo status = new StatusEmprestimo();
+    status.setTotalPago(request.getTotalPago() != null ? request.getTotalPago() : BigDecimal.ZERO);
+    status.setNumParcelasPagas(request.getParcelasPagas() != null ? request.getParcelasPagas() : 0);
+    status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
 
-        emprestimo.setStatusEmprestimo(status);
+    emprestimo.setStatusEmprestimo(status);
 
-        // Embedded: Info
-        InfoEmprestimo info = new InfoEmprestimo();
-        info.setValorDividaAnterior(request.getValorDividaAnterior());
-        info.setValorGarantia(request.getValorGarantia());
-        info.setDetalhesGarantia(request.getDetalheGarantia());
+    // Embedded: Info
+    InfoEmprestimo info = new InfoEmprestimo();
+    info.setValorDividaAnterior(request.getValorDividaAnterior());
+    info.setValorGarantia(request.getValorGarantia());
+    info.setDetalhesGarantia(request.getDetalheGarantia());
 
-        emprestimo.setInfoEmprestimo(info);
+    emprestimo.setInfoEmprestimo(info);
 
-        // 🔥 REGRA DE NEGÓCIO
-        emprestimo.calcularValores();
+    // 🔥 REGRA DE NEGÓCIO
+    emprestimo.calcularValores();
 
-        return repository.save(emprestimo);
-    }
+    return repository.save(emprestimo);
+  }
 
-    public List<Emprestimo> findEmprestimoByCliente(final Long idCliente) {
-        var cliente =
-                clienteRepository
-                        .findById(idCliente)
-                        .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
-        return repository.findByCliente(cliente);
-    }
+  public List<Emprestimo> findEmprestimoByCliente(final Long idCliente) {
+    var cliente =
+        clienteRepository
+            .findById(idCliente)
+            .orElseThrow(() -> new ClienteNaoEncontradoException("Cliente nao encontrado"));
+    return repository.findByCliente(cliente);
+  }
 
-    @Transactional
-    public Emprestimo registrarPagamento(Long id, PagamentoRequest request) {
+  @Transactional
+  public Emprestimo registrarPagamento(Long id, PagamentoRequest request) {
 
     Emprestimo emprestimo =
         repository
             .findById(id)
             .orElseThrow(() -> new EmprestimoNaoEncontradoException("Empréstimo não encontrado"));
 
-        StatusEmprestimo status = emprestimo.getStatusEmprestimo();
+    StatusEmprestimo status = emprestimo.getStatusEmprestimo();
 
-        // 1. Atualiza total pago
-        BigDecimal novoTotalPago = status.getTotalPago()
-                .add(request.getValorPago());
+    // 1. Atualiza total pago
+    BigDecimal novoTotalPago = status.getTotalPago().add(request.getValorPago());
 
-        status.setTotalPago(novoTotalPago);
+    status.setTotalPago(novoTotalPago);
 
-        // 2. Incrementa parcelas pagas
-        status.setNumParcelasPagas(
-                status.getNumParcelasPagas() + 1
-        );
+    // 2. Incrementa parcelas pagas
+    status.setNumParcelasPagas(status.getNumParcelasPagas() + 1);
 
-        // 3. Recalcula valores
-        emprestimo.calcularValores();
-        status.calcularProximoVencimento(
-                emprestimo.getDataInicioContrato(),
-                emprestimo.getPrazo()
-        );
+    // 3. Recalcula valores
+    emprestimo.calcularValores();
+    status.calcularProximoVencimento(emprestimo.getDataInicioContrato(), emprestimo.getPrazo());
 
-        // 4. Atualiza status
-        if (status.getValorEmAberto().compareTo(BigDecimal.ZERO) <= 0) {
-            status.setStatusEmprestimoEnum(StatusEmprestimoEnum.QUITADO);
-            status.setProximoVencimento(null);
-        } else {
-            status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
-        }
-
-        return repository.save(emprestimo);
+    // 4. Atualiza status
+    if (status.getValorEmAberto().compareTo(BigDecimal.ZERO) <= 0) {
+      status.setStatusEmprestimoEnum(StatusEmprestimoEnum.QUITADO);
+      status.setProximoVencimento(null);
+    } else {
+      status.setStatusEmprestimoEnum(StatusEmprestimoEnum.ATIVO);
     }
 
+    return repository.save(emprestimo);
+  }
 }
