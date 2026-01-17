@@ -4,8 +4,11 @@ import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoRequ
 import com.felixsoftwares.credilsgestao.emprestimo.controller.dto.EmprestimoResponse;
 import com.felixsoftwares.credilsgestao.emprestimo.mapper.EmprestimoMapper;
 import com.felixsoftwares.credilsgestao.emprestimo.service.EmprestimoService;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -24,8 +27,14 @@ public class EmprestimoController {
     private final EmprestimoService service;
 
     @GetMapping("/emprestimos")
-    public List<EmprestimoResponse> findAll() {
-        return mapper.toEmprestimoResponseList(service.findAll());
+    public Page<EmprestimoResponse> findAll(
+            @PageableDefault(
+                    size = 10,
+                    sort = "id",
+                    direction = Sort.Direction.DESC
+            ) Pageable pageable) {
+
+        return mapper.toResponsePage(service.findAll(pageable));
     }
 
     @GetMapping("/emprestimos/{id}")

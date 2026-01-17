@@ -11,8 +11,9 @@ import com.felixsoftwares.credilsgestao.exceptions.ClienteNaoEncontradoException
 import com.felixsoftwares.credilsgestao.exceptions.EmprestimoNaoEncontradoException;
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,8 +23,8 @@ public class EmprestimoService {
     private final EmprestimoRepository repository;
     private final ClienteRepository clienteRepository;
     
-    public List<Emprestimo> findAll() {
-        return repository.findAll();
+    public Page<Emprestimo> findAll(Pageable pageable) {
+        return repository.findAll(pageable);
     }
 
     public Emprestimo findById(final Long id) {
