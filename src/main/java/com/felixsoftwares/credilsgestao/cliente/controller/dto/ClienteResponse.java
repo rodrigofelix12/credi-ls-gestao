@@ -8,4 +8,8 @@ import lombok.Setter;
 public class ClienteResponse {
     private Long id;
     private String name;
+    private String cpf;
+    private String rg;
+    private String telefone;
+    private String endereco;
 }
