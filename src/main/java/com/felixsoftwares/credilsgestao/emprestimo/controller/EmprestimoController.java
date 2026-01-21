@@ -25,41 +25,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Validated
 public class EmprestimoController {
-    
-    private final EmprestimoMapper mapper;
-    private final EmprestimoService service;
 
-    @GetMapping("/emprestimos")
-    public Page<EmprestimoResponse> findAll(
-            @PageableDefault(
-                    size = 10,
-                    sort = "id",
-                    direction = Sort.Direction.DESC
-            ) Pageable pageable) {
+  private final EmprestimoMapper mapper;
+  private final EmprestimoService service;
 
-        return mapper.toResponsePage(service.findAll(pageable));
-    }
+  @GetMapping("/emprestimos")
+  public Page<EmprestimoResponse> findAll(
+      @PageableDefault(size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
 
-    @GetMapping("/emprestimos/{id}")
-    public EmprestimoResponse findById(@PathVariable Long id) {
-        return mapper.toEmprestimoResponse(service.findById(id));
-    }
+    return mapper.toResponsePage(service.findAll(pageable));
+  }
 
-    @PostMapping("/emprestimos/{idCliente}")
-    public ResponseEntity<Void> createEmprestimo(@PathVariable Long idCliente, @RequestBody EmprestimoRequest request) {
-        service.create(idCliente, request);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
+  @GetMapping("/emprestimos/{id}")
+  public EmprestimoResponse findById(@PathVariable Long id) {
+    return mapper.toEmprestimoResponse(service.findById(id));
+  }
 
-    @GetMapping("/clientes/{idCliente}/emprestimos")
-    public List<EmprestimoResponse> findEmprestimoByCliente(@PathVariable Long idCliente) {
-        return mapper.toEmprestimoResponseList(service.findEmprestimoByCliente(idCliente));
-    }
+  @PostMapping("/emprestimos/{idCliente}")
+  public ResponseEntity<Void> createEmprestimo(
+      @PathVariable Long idCliente, @RequestBody EmprestimoRequest request) {
+    service.create(idCliente, request);
+    return ResponseEntity.status(HttpStatus.CREATED).build();
+  }
 
-    @PutMapping("/emprestimos/{id}/pagamentos")
-    public EmprestimoResponse registrarPagamento(@PathVariable Long id, @RequestBody PagamentoRequest request) {
-        return mapper.toEmprestimoResponse(
-                service.registrarPagamento(id, request)
-        );
-    }
+  @GetMapping("/clientes/{idCliente}/emprestimos")
+  public List<EmprestimoResponse> findEmprestimoByCliente(@PathVariable Long idCliente) {
+    return mapper.toEmprestimoResponseList(service.findEmprestimoByCliente(idCliente));
+  }
+
+  @PutMapping("/emprestimos/{id}/pagamentos")
+  public EmprestimoResponse registrarPagamento(
+      @PathVariable Long id, @RequestBody PagamentoRequest request) {
+    return mapper.toEmprestimoResponse(service.registrarPagamento(id, request));
+  }
 }
